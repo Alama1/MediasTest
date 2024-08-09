@@ -16,6 +16,9 @@ class Configuration {
                 password: process.env.DATABASEPASSWORD,
                 port: process.env.DATABASEPORT,
                 host: process.env.DATABASEHOST
+            },
+            express: {
+                port: process.env.EXPRESSPORT || 3000
             }
         }
     }

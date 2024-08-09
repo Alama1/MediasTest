@@ -11,6 +11,7 @@ class Application {
 
     start() {
          this.database.connect()
+         this.express.start()
     }
 }
 
