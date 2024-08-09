@@ -1,7 +1,7 @@
 const { Model, DataTypes } = require('sequelize');
 
 class Order extends Model {
-    init(sequelize) {
+    static init(sequelize) {
         return super.init({
             id: {
                 type: DataTypes.STRING,

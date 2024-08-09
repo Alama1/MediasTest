@@ -1,4 +1,4 @@
-const Sequelize = require('sequelize')
+const { Sequelize } = require('sequelize')
 
 const Product = require('./Models/product')
 const Order = require('./Models/order')
@@ -17,14 +17,18 @@ class DatabaseManager {
             port: this.config.database.port,
             dialect: 'postgres',
         });
-        sequelize.authenticate()
-        .then(() => {
-            console.log('[database] connection established! Loading models...')
+        try {
+            await sequelize.authenticate();
+            console.log('[database] connection established! Loading models...');
             Product.init(sequelize);
             Arrival.init(sequelize);
             Order.init(sequelize);
             Cost.init(sequelize);
-        })
+            await sequelize.sync({ force: true });
+            console.log('[database] models synchronized!');
+          } catch (error) {
+            console.error('Unable to connect to the database:', error);
+          }
     }
 }
 
