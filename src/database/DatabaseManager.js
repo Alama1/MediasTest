@@ -8,21 +8,23 @@ const Arrival = require('./Models/arrival')
 class DatabaseManager {
     constructor(app) {
         this.app = app
+        this.config = app.config.properties
     }
 
-    async init() {
-        const sequelize = new Sequelize('database', 'username', 'password', {
-            host: 'localhost',
+    async connect() {
+        const sequelize = new Sequelize(this.config.database.name, this.config.database.login, this.config.database.password, {
+            host: this.config.database.host,
+            port: this.config.database.port,
             dialect: 'postgres',
         });
-        Product.init(sequelize);
-        Arrival.init(sequelize);
-        Order.init(sequelize);
-        Cost.init(sequelize);
-    }
-
-    start() {
-        
+        sequelize.authenticate()
+        .then(() => {
+            console.log('[database] connection established! Loading models...')
+            Product.init(sequelize);
+            Arrival.init(sequelize);
+            Order.init(sequelize);
+            Cost.init(sequelize);
+        })
     }
 }
 
