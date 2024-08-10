@@ -1,15 +1,26 @@
-const { Model, DataTypes } = require('sequelize');
+const { DataTypes } = require('sequelize');
 
-class Product extends Model {
-    static init(sequelize) {
-        return super.init({
-            id: {
-                type: DataTypes.STRING,
-                primaryKey: true
-            },
-            name: DataTypes.STRING
-        }, { sequelize, modelName: 'product' });
+module.exports = (sequelize) => {
+  const Product = sequelize.define('Product', {
+    id: {
+      type: DataTypes.STRING,
+      primaryKey: true
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    costPrice: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+      defaultValue: 0
+    },
+    stock: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0
     }
-}
+  });
 
-module.exports = Product;
+  return Product;
+};

@@ -1,9 +1,6 @@
 const { Sequelize } = require('sequelize')
-
-const Product = require('./Models/product')
-const Order = require('./Models/order')
-const Cost = require('./Models/cost')
-const Arrival = require('./Models/arrival')
+const IncomingInvoiceController = require('./controllers/incomingInvoiceController');
+const OutgoingInvoiceController = require('./controllers/outgoingInvoiceController');
 
 class DatabaseManager {
     constructor(app) {
@@ -20,10 +17,24 @@ class DatabaseManager {
         try {
             await sequelize.authenticate();
             console.log('[database] connection established! Loading models...');
-            Product.init(sequelize);
-            Arrival.init(sequelize);
-            Order.init(sequelize);
-            Cost.init(sequelize);
+
+            this.models = {
+                IncomingInvoice: require('./Models/incomingInvoice')(sequelize),
+                Product: require('./Models/product')(sequelize),
+                OutgoingInvoice: require('./Models/outgoingInvoice')(sequelize),
+                CostPrice: require('./Models/costPrice')(sequelize),
+                sequelize
+            }
+
+            Object.values(this.models).forEach(model => {
+                if (model.associate) {
+                  model.associate(this.models);
+                }
+              });
+
+            this.incomingInvoiceController = new IncomingInvoiceController(this.models);
+            this.outgoingInvoiceController = new OutgoingInvoiceController(this.models);
+
             await sequelize.sync({ force: true });
             console.log('[database] models synchronized!');
           } catch (error) {

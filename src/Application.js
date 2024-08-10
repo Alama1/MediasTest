@@ -1,11 +1,11 @@
 const Configuration = require('./Configuration')
-const Database = require ('./database/DatabaseManager')
+const DatabaseManager = require ('./database/DatabaseManager')
 const Express = require('./express/ExpressManager')
 
 class Application {
     async initialize() {
         this.config = new Configuration()
-        this.database = new Database(this)
+        this.database = new DatabaseManager(this)
         this.express = new Express(this)
     }
 
