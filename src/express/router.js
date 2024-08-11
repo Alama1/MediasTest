@@ -17,10 +17,6 @@ class expressRouter {
         routes.post('/arrivals', this.createIncomingInvoice.bind(this))
         routes.post('/orders', this.createBillOfLading.bind(this))
 
-        //put
-
-        //delete
-
         return routes
     }
 
@@ -40,7 +36,7 @@ class expressRouter {
 
     }
 
-    createBillOfLading(req, res) {
+    createOutgoingInvoice(req, res) {
 
     }
 }
