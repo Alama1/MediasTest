@@ -68,10 +68,42 @@ class DatabaseManager {
       return this.outgoingInvoiceController.createOutgoingInvoice({ document_id: id, date, products })
     }
 
-    getPrice(product) {
-      const { id, date, value } = product;
-      //TODO дізнатись про формат дати + зробить на основі цього дату на цей день, якщо її не було запроваджено.
-      if (!date) date = new Date()
+    async getPrice(product) {
+      let { id, date } = product;
+      if (!date) {
+        const today = new Date();
+        const day = String(today.getDate()).padStart(2, '0');
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const year = today.getFullYear();
+
+        date = `${day}.${month}.${year}`;
+      }
+
+      try {
+        const costPriceRecord = await this.models.CostPrice.findOne({
+          where: {
+            ProductId: id,
+            date: {
+              [Op.lte]: date
+            }
+          },
+          order: [['date', 'DESC']]
+        });
+    
+        if (!costPriceRecord) {
+          throw new Error('No cost price record found for the given product and date');
+        }
+    
+        return {
+          id,
+          date,
+          value: costPriceRecord.value
+        };
+      } catch (error) {
+        console.error('Error fetching cost price:', error.message);
+        throw error;
+      }
+      
     }
 }
 
