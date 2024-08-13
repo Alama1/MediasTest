@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
-  const OutgoingInvoice = sequelize.define('OutgoingInvoice', {
+  const OutgoingInvoice = sequelize.define('IncomingInvoice', {
     id: {
       type: DataTypes.STRING,
       primaryKey: true
@@ -9,19 +9,11 @@ module.exports = (sequelize) => {
     date: {
       type: DataTypes.DATE,
       allowNull: false
-    },
-    quantity: {
-      type: DataTypes.INTEGER,
-      allowNull: false
-    },
-    price: {
-      type: DataTypes.FLOAT,
-      allowNull: false
     }
   });
 
-  OutgoingInvoice.associate = (models) => {
-    OutgoingInvoice.belongsTo(models.Product);
+  IncomingInvoice.associate = (models) => {
+    IncomingInvoice.hasMany(models.OutgoingInvoiceItem, { foreignKey: 'invoiceId' });
   };
 
   return OutgoingInvoice;

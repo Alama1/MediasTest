@@ -5,17 +5,25 @@ class IncomingInvoiceController {
     this.models = models;
   }
 
-  async createIncomingInvoice(newInvoice) {
+  async createIncomingInvoice(incomingInvoice) {
     const transaction = await this.models.sequelize.transaction();
     try {
-      const { document_id, date, products } = newInvoice;
+      const { document_id, date, invoiceProducts } = incomingInvoice;
       const invoice = await this.models.IncomingInvoice.create({ id: document_id, date }, { transaction });
 
-      for (const item of products) {
+      const productIds = invoiceProducts.map(item => item.productId);
+      const products = await this.models.Product.findAll({
+        where: {
+          id: productIds
+        },
+        transaction
+      });
+
+      for (const item of invoiceProducts) {
         const { productId, quantity, price } = item;
         await this.models.IncomingInvoiceItem.create({ invoiceId: document_id, productId, quantity, price }, { transaction });
 
-        const product = await this.models.Product.findByPk(productId, { transaction });
+        const product = products.find(p => p.id === productId);
         product.stock += quantity;
         await product.save({ transaction });
 
@@ -23,18 +31,18 @@ class IncomingInvoiceController {
           where: {
             productId,
             date: {
-              [Op.gte]: date
+              [Op.lte]: date
             }
           },
           order: [['date', 'ASC']],
           transaction
         });
 
-        const outgoingInvoices = await this.models.OutgoingInvoice.findAll({
+        const outgoingInvoices = await this.models.OutgoingInvoiceItem.findAll({
           where: {
-            ProductId: productId,
+            productId,
             date: {
-              [Op.gte]: date
+              [Op.lte]: date
             }
           },
           order: [['date', 'ASC']],
@@ -57,7 +65,7 @@ class IncomingInvoiceController {
 
           const monthStart = new Date(inv.date.getFullYear(), inv.date.getMonth(), 1);
           await this.models.CostPrice.upsert({
-            ProductId: productId,
+            productId,
             date: monthStart,
             value: costPrice
           }, { transaction });

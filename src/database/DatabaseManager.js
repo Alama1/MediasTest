@@ -59,13 +59,13 @@ class DatabaseManager {
     newIncomingInvoice(invoice) {
       const { id, date, products } = invoice;
       
-      return this.incomingInvoiceController.createIncomingInvoice({ document_id: id, date, products });
+      return this.incomingInvoiceController.createIncomingInvoice({ document_id: id, date, invoiceProducts: products });
     }
 
     newOutgoingInvoice(invoice) {
       const { id, date, products } = invoice
 
-      return this.outgoingInvoiceController.createOutgoingInvoice({ document_id: id, date, products })
+      return this.outgoingInvoiceController.createOutgoingInvoice({ document_id: id, date, invoiceProducts: products })
     }
 
     async getPrice(product) {

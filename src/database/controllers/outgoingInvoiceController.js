@@ -5,17 +5,25 @@ class OutgoingInvoiceController {
     this.models = models;
   }
 
-  async createOutgoingInvoice(newInvoice) {
+  async createOutgoingInvoice(incomingInvoice) {
     const transaction = await this.models.sequelize.transaction();
     try {
-      const { document_id, date, products } = newInvoice;
+      const { document_id, date, invoiceProducts } = incomingInvoice;
       const invoice = await this.models.OutgoingInvoice.create({ id: document_id, date }, { transaction });
 
-      for (const item of products) {
+      const productIds = invoiceProducts.map(item => item.productId);
+      const products = await this.models.Product.findAll({
+        where: {
+          id: productIds
+        },
+        transaction
+      });
+
+      for (const item of invoiceProducts) {
         const { productId, quantity, price } = item;
         await this.models.OutgoingInvoiceItem.create({ invoiceId: document_id, productId, quantity, price }, { transaction });
 
-        const product = await this.models.Product.findByPk(productId, { transaction });
+        const product = products.find(p => p.id === productId);
         product.stock -= quantity;
         await product.save({ transaction });
 
@@ -23,18 +31,18 @@ class OutgoingInvoiceController {
           where: {
             productId,
             date: {
-              [Op.gte]: date
+              [Op.lte]: date
             }
           },
           order: [['date', 'ASC']],
           transaction
         });
 
-        const outgoingInvoices = await this.models.OutgoingInvoice.findAll({
+        const outgoingInvoices = await this.models.OutgoingInvoiceItem.findAll({
           where: {
-            ProductId: productId,
+            productId,
             date: {
-              [Op.gte]: date
+              [Op.lte]: date
             }
           },
           order: [['date', 'ASC']],
@@ -57,7 +65,7 @@ class OutgoingInvoiceController {
 
           const monthStart = new Date(inv.date.getFullYear(), inv.date.getMonth(), 1);
           await this.models.CostPrice.upsert({
-            ProductId: productId,
+            productId,
             date: monthStart,
             value: costPrice
           }, { transaction });
@@ -68,7 +76,7 @@ class OutgoingInvoiceController {
       return invoice
     } catch (error) {
       await transaction.rollback();
-      throw new Error(`Error creating new outgoing invoice: ${error.message}`)
+      throw new Error(`Error creating new incoming invoice: ${error.message}`)
     }
   }
 }
