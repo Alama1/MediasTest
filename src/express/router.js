@@ -16,7 +16,7 @@ class expressRouter {
         //post
         routes.post('/products', this.addProduct.bind(this))
         routes.post('/arrivals', this.createIncomingInvoice.bind(this))
-        routes.post('/orders', this.createBillOfLading.bind(this))
+        routes.post('/orders', this.createOutgoingInvoice.bind(this))
 
         return routes
     }

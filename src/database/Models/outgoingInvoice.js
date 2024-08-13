@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
-  const OutgoingInvoice = sequelize.define('IncomingInvoice', {
+  const OutgoingInvoice = sequelize.define('OutgoingInvoice', {
     id: {
       type: DataTypes.STRING,
       primaryKey: true
@@ -12,8 +12,8 @@ module.exports = (sequelize) => {
     }
   });
 
-  IncomingInvoice.associate = (models) => {
-    IncomingInvoice.hasMany(models.OutgoingInvoiceItem, { foreignKey: 'invoiceId' });
+  OutgoingInvoice.associate = (models) => {
+    OutgoingInvoice.hasMany(models.OutgoingInvoiceItem, { foreignKey: 'invoiceId' });
   };
 
   return OutgoingInvoice;
