@@ -64,9 +64,9 @@ class OutgoingInvoiceController {
         }
 
         const costPrice = totalCost / totalQuantity;
-        const dateObj = new Date(date)
 
-        const monthStart = new Date(dateObj.getFullYear(), dateObj.getMonth(), 1).toISOString();
+        const monthStart = getMonthStart(date).toISOString()
+        
         await this.models.CostPrice.upsert({
           productId: product_id,
           date: monthStart,

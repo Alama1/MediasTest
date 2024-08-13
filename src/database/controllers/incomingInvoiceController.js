@@ -70,9 +70,8 @@ class IncomingInvoiceController {
         }
 
         const costPrice = totalCost / totalQuantity;
-        const dateObj = new Date(date)
 
-        const monthStart = new Date(dateObj.getFullYear(), dateObj.getMonth(), 1).toISOString();
+        const monthStart = getMonthStart(date).toISOString()
         await this.models.CostPrice.upsert({
           productId: product_id,
           date: monthStart,
@@ -87,6 +86,11 @@ class IncomingInvoiceController {
       throw new Error(`Error creating new incoming invoice: ${error}`);
     }
   }
+}
+
+function getMonthStart(date) {
+  const dateObj = new Date(date);
+  return new Date(Date.UTC(dateObj.getUTCFullYear(), dateObj.getUTCMonth(), 1));
 }
 
 module.exports = IncomingInvoiceController;
