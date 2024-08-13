@@ -1,6 +1,7 @@
 const { Sequelize } = require('sequelize')
 const IncomingInvoiceController = require('./controllers/incomingInvoiceController');
 const OutgoingInvoiceController = require('./controllers/outgoingInvoiceController');
+const GetCostPriceOnDateController = require('./controllers/getCostPriceOnDate')
 
 class DatabaseManager {
     constructor(app) {
@@ -37,7 +38,7 @@ class DatabaseManager {
             this.incomingInvoiceController = new IncomingInvoiceController(this.models);
             this.outgoingInvoiceController = new OutgoingInvoiceController(this.models);
 
-            await sequelize.sync({ force: true });
+            await sequelize.sync();
             console.log('[database] models synchronized!');
         } catch (error) {
           console.error('Unable to connect to the database:', error);
@@ -71,34 +72,12 @@ class DatabaseManager {
     async getPrice(product) {
       let { id, date } = product;
       if (!date) {
-        const today = new Date();
-        const day = String(today.getDate()).padStart(2, '0');
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const year = today.getFullYear();
-
-        date = `${day}.${month}.${year}`;
+        date = new Date().toISOString()
       }
 
       try {
-        const costPriceRecord = await this.models.CostPrice.findOne({
-          where: {
-            ProductId: id,
-            date: {
-              [Op.lte]: date
-            }
-          },
-          order: [['date', 'DESC']]
-        });
-    
-        if (!costPriceRecord) {
-          throw new Error('No cost price record found for the given product and date');
-        }
-    
-        return {
-          id,
-          date,
-          value: costPriceRecord.value
-        };
+        const returnData = await GetCostPriceOnDateController(id, date, this.models);
+        return returnData
       } catch (error) {
         console.error('Error fetching cost price:', error.message);
         throw error;

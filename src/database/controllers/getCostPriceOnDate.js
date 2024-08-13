@@ -1,14 +1,12 @@
 const { Op } = require('sequelize');
 
-async function getCostPriceOnDate(productId, date) {
+async function getCostPriceOnDate(productId, date, models) {
+
+  date = new Date(date).toISOString()
+
   try {
-    const costPriceRecord = await models.CostPrice.findOne({
-      where: {
-        ProductId: productId,
-        date: {
-          [Op.lte]: date
-        }
-      },
+    const costPriceRecord = await models.CostPrice.findAll({
+      
       order: [['date', 'DESC']]
     });
 
@@ -16,7 +14,7 @@ async function getCostPriceOnDate(productId, date) {
       throw new Error('No cost price record found for the given product and date');
     }
 
-    return costPriceRecord.value;
+    return costPriceRecord;
   } catch (error) {
     console.error('Error fetching cost price:', error);
     throw error;

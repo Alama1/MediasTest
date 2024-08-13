@@ -13,7 +13,9 @@ module.exports = (sequelize) => {
   });
 
   CostPrice.associate = (models) => {
-    CostPrice.belongsTo(models.Product);
+    CostPrice.belongsTo(models.Product, {
+      foreignKey: 'productId'
+    });
   };
 
   return CostPrice;

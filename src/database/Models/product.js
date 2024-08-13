@@ -4,7 +4,8 @@ module.exports = (sequelize) => {
   const Product = sequelize.define('Product', {
     id: {
       type: DataTypes.STRING,
-      primaryKey: true
+      primaryKey: true,
+      
     },
     name: {
       type: DataTypes.STRING,
