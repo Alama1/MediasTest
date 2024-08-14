@@ -52,27 +52,11 @@ class expressRouter {
     }
 
     async createIncomingInvoice(req, res) {
-        const incomingInvoice = req.body
-        try {
-            const invoiceResponse = await this.database.newIncomingInvoice(incomingInvoice)
-            res.status(201)
-                .json(invoiceResponse)
-        } catch(err) {
-            res.status(500)
-                .json(err.message)
-        }
+        this.database.newIncomingInvoice(req, res)
     }
 
     async createOutgoingInvoice(req, res) {
-        const outgoingInvoice = req.body
-        try {
-            const invoiceResponse = await this.database.newIncomingInvoice(outgoingInvoice)
-            res.status(201)
-                .json(invoiceResponse)
-        } catch(err) {
-            res.status(500)
-                .json(err.message)
-        }
+        this.database.newOutgoingInvoice(req, res)
     }
 }
 

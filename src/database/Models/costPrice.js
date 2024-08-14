@@ -4,7 +4,8 @@ module.exports = (sequelize) => {
   const CostPrice = sequelize.define('CostPrice', {
     date: {
       type: DataTypes.DATE,
-      allowNull: false
+      allowNull: false,
+      unique: true
     },
     value: {
       type: DataTypes.FLOAT,

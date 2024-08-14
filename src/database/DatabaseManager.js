@@ -57,16 +57,12 @@ class DatabaseManager {
       }
     }
 
-    newIncomingInvoice(invoice) {
-      const { id, date, products } = invoice;
-      
-      return this.incomingInvoiceController.createIncomingInvoice({ document_id: id, date, invoiceProducts: products });
+    newIncomingInvoice(req, res) {
+      return this.incomingInvoiceController.createIncomingInvoice(req,res);
     }
 
-    newOutgoingInvoice(invoice) {
-      const { id, date, products } = invoice
-
-      return this.outgoingInvoiceController.createOutgoingInvoice({ document_id: id, date, invoiceProducts: products })
+    newOutgoingInvoice(req, res) {
+      return this.outgoingInvoiceController.createOutgoingInvoice(req, res)
     }
 
     async getPrice(product) {
