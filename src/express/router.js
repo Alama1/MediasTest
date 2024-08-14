@@ -36,7 +36,7 @@ class expressRouter {
     }
 
     getReport(req, res) {
-
+        this.database.getReport(req, res);
     }
 
     async addProduct(req, res) {

@@ -1,6 +1,7 @@
 const { Sequelize } = require('sequelize')
 const IncomingInvoiceController = require('./controllers/incomingInvoiceController');
 const OutgoingInvoiceController = require('./controllers/outgoingInvoiceController');
+const SalesReportController = require('./controllers/getReportController')
 const GetCostPriceOnDateController = require('./controllers/getCostPriceOnDate')
 
 class DatabaseManager {
@@ -37,6 +38,7 @@ class DatabaseManager {
 
             this.incomingInvoiceController = new IncomingInvoiceController(this.models);
             this.outgoingInvoiceController = new OutgoingInvoiceController(this.models);
+            this.salesReportController = new SalesReportController(this.models);
 
             await sequelize.sync();
             console.log('[database] models synchronized!');
@@ -62,7 +64,11 @@ class DatabaseManager {
     }
 
     newOutgoingInvoice(req, res) {
-      return this.outgoingInvoiceController.createOutgoingInvoice(req, res)
+      return this.outgoingInvoiceController.createOutgoingInvoice(req, res);
+    }
+
+    getReport(req, res) {
+      return this.salesReportController.getDailySalesReport(req, res);
     }
 
     async getPrice(product) {
