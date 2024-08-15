@@ -6,7 +6,12 @@ async function getCostPriceOnDate(productId, date, models) {
 
   try {
     const costPriceRecord = await models.CostPrice.findAll({
-      
+      where: {
+        productId,
+        date: {
+          [Op.lte]: date
+        }
+      },
       order: [['date', 'DESC']]
     });
 

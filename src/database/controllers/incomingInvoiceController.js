@@ -5,17 +5,19 @@ class IncomingInvoiceController {
     this.models = models;
   }
 
-  async createIncomingInvoice(incomingInvoice) {
+  async createIncomingInvoice(req, res) {
     const transaction = await this.models.sequelize.transaction();
     try {
-      let { document_id, date, invoiceProducts } = incomingInvoice;
+      let { id, date, products } = req.body;
 
       date = new Date(date).toISOString()
 
-      const invoice = await this.models.IncomingInvoice.create({ id: document_id, date }, { transaction });
+      const invoice = await this.models.IncomingInvoice.create({ id, date }, { transaction: null });
+      
+      res.status(201).json(invoice)
 
-      const productIds = invoiceProducts.map(item => item.product_id);
-      const products = await this.models.Product.findAll({
+      const productIds = products.map(item => item.product_id);
+      const productsFromInvoice = await this.models.Product.findAll({
         where: {
           id: productIds
         },
@@ -44,11 +46,11 @@ class IncomingInvoiceController {
         transaction
       });
 
-      for (const item of invoiceProducts) {
+      for (const item of products) {
         const { product_id, quantity, price } = item;
-        await this.models.IncomingInvoiceItem.create({ invoiceId: document_id, productId: product_id, quantity, price, date }, { transaction });
+        await this.models.IncomingInvoiceItem.create({ invoiceId: id, productId: product_id, quantity, price, date }, { transaction: null });
 
-        const product = products.find(p => p.id === product_id);
+        const product = productsFromInvoice.find(p => p.id === product_id);
         product.stock += quantity;
         await product.save({ transaction });
 
@@ -70,9 +72,8 @@ class IncomingInvoiceController {
         }
 
         const costPrice = totalCost / totalQuantity;
-        const dateObj = new Date(date)
 
-        const monthStart = new Date(dateObj.getFullYear(), dateObj.getMonth(), 1).toISOString();
+        const monthStart = getMonthStart(date).toISOString()
         await this.models.CostPrice.upsert({
           productId: product_id,
           date: monthStart,
@@ -81,12 +82,17 @@ class IncomingInvoiceController {
       }
 
       await transaction.commit();
-      return invoice;
     } catch (error) {
       await transaction.rollback();
-      throw new Error(`Error creating new incoming invoice: ${error}`);
+      res.status(500).json(error)
+      console.error(`Error creating new incoming invoice: ${error}`);
     }
   }
+}
+
+function getMonthStart(date) {
+  const dateObj = new Date(date);
+  return new Date(Date.UTC(dateObj.getUTCFullYear(), dateObj.getUTCMonth(), 1));
 }
 
 module.exports = IncomingInvoiceController;
