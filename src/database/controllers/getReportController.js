@@ -23,11 +23,14 @@ class SalesReportController {
           "OutgoingInvoiceItems" oi ON o.id = oi."invoiceId"
         JOIN 
           "CostPrices" cp ON oi."productId" = cp."productId" AND DATE(o.date) = DATE(cp.date)
+        WHERE 
+          o.date BETWEEN :from AND :to
         GROUP BY 
           DATE(o.date)
         ORDER BY 
           DATE(o.date);
       `, {
+        replacements: { from, to },
         type: this.models.sequelize.QueryTypes.SELECT
       });
 
